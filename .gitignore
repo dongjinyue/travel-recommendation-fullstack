@@ -1,0 +1,22 @@
+# 依赖目录：这些文件可以通过 package-lock.json 重新安装，不上传到仓库
+**/node_modules/
+
+# 前端构建产物和测试覆盖率报告
+**/dist/
+**/coverage/
+
+# 环境变量和密钥：避免 API 密钥、服务器配置进入 GitHub
+**/.env
+**/.env.*
+!**/.env.example
+
+# 私钥和证书：例如腾讯云 SSH 私钥
+**/*.pem
+**/*.key
+
+# 日志与本地编辑器配置
+**/*.log
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
