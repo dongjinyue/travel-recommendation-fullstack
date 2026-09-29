@@ -2,7 +2,7 @@
  * LangChain 智能推荐服务
  *
  * 核心功能:
- * 1. 初始化并管理 LLM 实例（支持 SiliconFlow / DeepSeek 双模型提供商）
+ * 1. 初始化并管理 LLM 实例（支持硅基流动、DeepSeek 和通义千问）
  * 2. 构建旅游推荐的 System Prompt（包含 JSON 输出格式约束）
  * 3. 构建 AI 对话的 System Prompt
  * 4. 解析 LLM 返回的 JSON 内容（容错处理 markdown code block 包裹）
@@ -21,6 +21,7 @@ let llmInstance = null;
  * 获取 LLM 实例（懒加载 + 单例）
  *
  * 根据环境变量 MODEL_PROVIDER 选择模型提供商:
+ *   - "qwen":        使用阿里云百炼兼容接口
  *   - "siliconflow": 使用硅基流动 API
  *   - 其他/默认:      使用 DeepSeek API
  *
@@ -38,7 +39,13 @@ const getLLM = () => {
 
   // 根据提供商构建配置
   let config;
-  if (provider === 'siliconflow') {
+  if (provider === 'qwen') {
+    config = {
+      apiKey: process.env.DASHSCOPE_API_KEY,
+      model: process.env.QWEN_MODEL || 'qwen3.8-flash',
+      baseURL: (process.env.QWEN_BASE_URL || 'https://dashscope.aliyuncs.com/compatible-mode/v1').trim()
+    };
+  } else if (provider === 'siliconflow') {
     config = {
       apiKey: process.env.SILICONFLOW_API_KEY,
       model: process.env.SILICONFLOW_MODEL || 'Qwen/Qwen3.6-35B-A3B',
@@ -53,6 +60,10 @@ const getLLM = () => {
   }
 
   // 校验 API Key 是否已配置
+  if (provider === 'qwen' && !config.apiKey) {
+    throw new Error('请在 .env 中配置 DASHSCOPE_API_KEY');
+  }
+
   if (!config.apiKey) {
     throw new Error(`请在 .env 中配置 ${provider === 'siliconflow' ? 'SILICONFLOW_API_KEY' : 'DEEPSEEK_API_KEY'}`);
   }

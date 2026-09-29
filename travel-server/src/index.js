@@ -35,7 +35,12 @@ app.use(express.json());
 // 健康检查接口
 // 返回服务状态、当前时间戳和使用的模型提供商信息
 app.get('/api/health', (req, res) => {
-  const provider = process.env.MODEL_PROVIDER?.toLowerCase() === 'siliconflow' ? '硅基流动' : 'DeepSeek';
+  const providerName = process.env.MODEL_PROVIDER?.toLowerCase();
+  const provider = providerName === 'qwen'
+    ? '通义千问（DashScope）'
+    : providerName === 'siliconflow'
+      ? '硅基流动'
+      : 'DeepSeek';
   res.json({
     success: true,
     message: '服务运行正常',

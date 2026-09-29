@@ -1,81 +1,37 @@
 # 旅游推荐服务端
 
-智能景点推荐服务端，基于 Node.js + Express + LangChain 实现。
+Node.js + Express 服务端，负责旅游行程规划、AI 问答、SSE（服务器发送事件）流式传输和模型服务接入。
 
-## 技术栈
+完整的全栈项目说明、前端运行方式、部署架构和维护指南请查看仓库根目录的 [README](../README.md)。
 
-- **Node.js** - 运行时
-- **Express** - Web框架
-- **LangChain** - LLM 应用框架
-- **dotenv** - 环境变量管理
-- **cors** - 跨域资源共享
+## 本地开发
 
-## 快速开始
-
-### 1. 安装依赖
-
-```bash
-npm install
+```powershell
+npm ci
+Copy-Item .env.example .env
 ```
 
-### 2. 配置环境变量
+编辑 `.env`，设置 `MODEL_PROVIDER` 和对应服务商的 API Key（接口密钥），再启动：
 
-复制 `.env.example` 为 `.env`，填入你的 API Key:
-
-```bash
-cp .env.example .env
-```
-
-### 3. 启动开发服务器
-
-```bash
+```powershell
 npm run dev
 ```
 
-## API 接口
+默认监听 `http://localhost:3000`。健康检查接口为 `GET /api/health`。
 
-### POST /api/travel/recommend
+## 当前接口
 
-获取旅游推荐方案（同步）
+- `POST /api/travel/recommend`：接收 `{ "city": "北京", "budget": 3333, "days": 3 }`，以 SSE 返回行程分片和最终行程对象。
+- `POST /api/travel/chat`：接收 `{ "message": "北京有哪些旅游建议？" }`，以 SSE 返回问答分片和最终回复。
 
-**请求体:**
-```json
-{
-  "destination": "北京",
-  "days": 3,
-  "budget": "medium",
-  "preferences": "历史文化"
-}
-```
+模型配置变量和完整 SSE 示例请参考根目录 README 及本目录 `.env.example`。后端当前尚未配置自动化测试，`npm test` 是占位命令。
 
-**响应:**
-```json
-{
-  "success": true,
-  "data": {
-    "destination": "北京",
-    "itinerary": "..."
-  }
-}
-```
+## 代码目录
 
-### POST /api/travel/recommend/stream
-
-获取旅游推荐方案（流式响应 SSE）
-
-**请求体:** 同上
-
-**响应:** Server-Sent Events 流
-
-## 项目结构
-
-```
+```text
 src/
-├── routes/
-│   └── travel.js          # 旅游推荐API路由
-├── services/
-│   └── travelService.js   # LangChain智能推荐服务
-├── utils/
-│   └── streamUtils.js     # 流式响应工具
-└── index.js               # 主入口文件
+├── routes/travel.js          # 行程规划和问答路由
+├── services/travelService.js # 模型选择、提示词和流式调用
+├── utils/streamUtils.js      # SSE 响应封装
+└── index.js                  # Express 入口和健康检查
 ```
